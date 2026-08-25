@@ -1,20 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Button,
   Card,
   CardContent,
+  Chip,
   Grid,
   MenuItem,
   Stack,
   TextField,
   Typography,
+  Avatar,
+  Divider,
 } from '@mui/material';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useAlunos } from '../../hooks/useAlunos';
 import { useTurmas } from '../../hooks/useTurmas';
 import PageHeader from '../../components/common/PageHeader';
 import EmptyState from '../../components/common/EmptyState';
 import AlertMessage from '../../components/common/AlertMessage';
+import { palette } from '../../theme';
 
 const initialForm = {
   nome: '',
@@ -29,7 +34,7 @@ const initialForm = {
 
 function AlunosPage() {
   const { alunos, cadastrar, recarregar } = useAlunos();
-  const { turmas, carregando: turmasCarregando } = useTurmas();
+  const { turmas } = useTurmas();
   const [form, setForm] = useState(initialForm);
   const [mensagem, setMensagem] = useState('');
   const [tipoMensagem, setTipoMensagem] = useState('success');
@@ -71,18 +76,57 @@ function AlunosPage() {
 
       <AlertMessage mensagem={mensagem} tipo={tipoMensagem} onClose={() => setMensagem('')} />
 
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
+      <Card className="animate-in" sx={{ mb: 4 }}>
+        <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                background: `linear-gradient(135deg, ${palette.navy[500]}, ${palette.navy[600]})`,
+              }}
+            >
+              <PersonAddIcon sx={{ fontSize: 20 }} />
+            </Avatar>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Novo Aluno
+            </Typography>
+          </Box>
+
           <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} md={6}>
-                <TextField fullWidth label="Nome" name="nome" value={form.nome} onChange={handleChange} required />
+                <TextField
+                  fullWidth
+                  label="Nome completo"
+                  name="nome"
+                  value={form.nome}
+                  onChange={handleChange}
+                  required
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField fullWidth label="E-mail" name="email" type="email" value={form.email} onChange={handleChange} required />
+                <TextField
+                  fullWidth
+                  label="E-mail"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField fullWidth label="Data de nascimento" name="data_nascimento" type="date" value={form.data_nascimento} onChange={handleChange} InputLabelProps={{ shrink: true }} required />
+                <TextField
+                  fullWidth
+                  label="Data de nascimento"
+                  name="data_nascimento"
+                  type="date"
+                  value={form.data_nascimento}
+                  onChange={handleChange}
+                  InputLabelProps={{ shrink: true }}
+                  required
+                />
               </Grid>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -92,7 +136,7 @@ function AlunosPage() {
                   name="turma_id"
                   value={form.turma_id || ''}
                   onChange={handleChange}
-                  helperText={turmas.length ? 'Selecione uma turma ou preencha a serie abaixo.' : 'Nenhuma turma cadastrada. Preencha a serie manualmente.'}
+                  helperText={turmas.length ? 'Selecione uma turma ou preencha a serie abaixo.' : 'Nenhuma turma cadastrada.'}
                 >
                   <MenuItem value="">Sem turma</MenuItem>
                   {turmas.map((turma) => (
@@ -124,7 +168,7 @@ function AlunosPage() {
                 <TextField fullWidth label="Endereco" name="endereco" value={form.endereco} onChange={handleChange} />
               </Grid>
             </Grid>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3 }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 3.5 }}>
               <Button type="submit" variant="contained" size="large" disabled={salvando}>
                 {salvando ? 'Salvando...' : 'Salvar aluno'}
               </Button>
@@ -136,20 +180,78 @@ function AlunosPage() {
         </CardContent>
       </Card>
 
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-        Alunos cadastrados
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Alunos cadastrados
+        </Typography>
+        <Chip
+          label={alunos.length}
+          size="small"
+          sx={{
+            fontWeight: 600,
+            backgroundColor: palette.navy[50],
+            color: palette.navy[700],
+          }}
+        />
+      </Box>
+
       {alunos.length === 0 ? (
         <EmptyState titulo="Nenhum aluno cadastrado" descricao="Preencha o formulario acima para cadastrar o primeiro aluno." />
       ) : (
-        <Stack spacing={1}>
-          {alunos.map((aluno) => (
-            <Card key={aluno.id} variant="outlined">
-              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                <Typography fontWeight={600}>{aluno.nome}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {aluno.email} | {aluno.serie} | {aluno.turma ? `Turma: ${aluno.turma.nome}` : 'Sem turma'}
-                </Typography>
+        <Stack spacing={1.5}>
+          {alunos.map((aluno, index) => (
+            <Card
+              key={aluno.id}
+              variant="outlined"
+              className={`animate-in stagger-${Math.min(index + 1, 4)}`}
+              sx={{
+                '&:hover': { borderColor: palette.navy[200] },
+              }}
+            >
+              <CardContent sx={{ py: 2, px: 2.5, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      background: `linear-gradient(135deg, ${palette.navy[100]}, ${palette.navy[200]})`,
+                      color: palette.navy[700],
+                      fontWeight: 700,
+                      fontSize: '0.95rem',
+                    }}
+                  >
+                    {aluno.nome.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                    <Typography fontWeight={600} sx={{ lineHeight: 1.3 }}>
+                      {aluno.nome}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                      {aluno.email}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1, alignItems: 'center' }}>
+                    <Chip
+                      label={aluno.serie}
+                      size="small"
+                      sx={{ fontWeight: 500, backgroundColor: '#f1f5f9', fontSize: '0.75rem' }}
+                    />
+                    {aluno.turma ? (
+                      <Chip
+                        label={aluno.turma.nome}
+                        size="small"
+                        sx={{
+                          fontWeight: 500,
+                          background: `linear-gradient(135deg, ${palette.navy[50]}, ${palette.navy[100]})`,
+                          color: palette.navy[700],
+                          fontSize: '0.75rem',
+                        }}
+                      />
+                    ) : (
+                      <Chip label="Sem turma" size="small" variant="outlined" sx={{ fontSize: '0.75rem' }} />
+                    )}
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
           ))}

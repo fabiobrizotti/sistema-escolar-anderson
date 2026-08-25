@@ -6,10 +6,10 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Typography,
   useMediaQuery,
   useTheme,
+  Avatar,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
@@ -17,6 +17,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import { palette } from '../../theme';
 
 const DRAWER_WIDTH = 260;
 
@@ -29,9 +30,22 @@ const menuItems = [
   { key: '/relatorios', label: 'Relatorios', icon: <AssessmentIcon /> },
 ];
 
+const DRAWER_SX = {
+  width: DRAWER_WIDTH,
+  flexShrink: 0,
+  '& .MuiDrawer-paper': {
+    width: DRAWER_WIDTH,
+    boxSizing: 'border-box',
+    borderRight: 'none',
+    background: `linear-gradient(180deg, ${palette.navy[900]} 0%, ${palette.navy[950]} 100%)`,
+    color: '#ffffff',
+  },
+};
+
 function SidebarItem({ item, onNavigate }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isActive = location.pathname === item.key;
 
   const handleClick = () => {
     navigate(item.key);
@@ -40,13 +54,119 @@ function SidebarItem({ item, onNavigate }) {
 
   return (
     <ListItemButton
-      selected={location.pathname === item.key}
+      selected={isActive}
       onClick={handleClick}
-      sx={{ borderRadius: 2, mb: 0.5 }}
+      sx={{
+        borderRadius: 3,
+        mb: 0.5,
+        px: 2,
+        py: 1.2,
+        color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
+        backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+        '&:hover': {
+          backgroundColor: 'rgba(255,255,255,0.08)',
+          color: '#ffffff',
+        },
+        '&.Mui-selected': {
+          backgroundColor: 'rgba(255,255,255,0.12)',
+          color: '#ffffff',
+          '&:hover': { backgroundColor: 'rgba(255,255,255,0.16)' },
+        },
+      }}
     >
-      <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-      <ListItemText primary={item.label} />
+      <ListItemIcon
+        sx={{
+          minWidth: 40,
+          color: 'inherit',
+        }}
+      >
+        {item.icon}
+      </ListItemIcon>
+      <ListItemText
+        primary={item.label}
+        primaryTypographyProps={{
+          fontSize: '0.875rem',
+          fontWeight: isActive ? 600 : 400,
+        }}
+      />
+      {isActive && (
+        <Box
+          sx={{
+            width: 3,
+            height: 24,
+            borderRadius: 2,
+            backgroundColor: palette.gold[400],
+            ml: 1,
+          }}
+        />
+      )}
     </ListItemButton>
+  );
+}
+
+function SidebarContent({ onNavigate }) {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box sx={{ px: 3, py: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Avatar
+          sx={{
+            width: 40,
+            height: 40,
+            background: `linear-gradient(135deg, ${palette.gold[400]}, ${palette.gold[500]})`,
+            fontWeight: 800,
+            fontSize: '1rem',
+            color: palette.navy[900],
+          }}
+        >
+          PS
+        </Avatar>
+        <Box>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ lineHeight: 1.2, color: '#ffffff' }}>
+            Persistema
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem' }}>
+            Sistema Escolar
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ px: 2, mb: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            px: 1,
+            color: 'rgba(255,255,255,0.3)',
+            fontSize: '0.65rem',
+            fontWeight: 600,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Menu
+        </Typography>
+      </Box>
+
+      <List sx={{ px: 1.5, flexGrow: 1 }}>
+        {menuItems.map((item) => (
+          <SidebarItem key={item.key} item={item} onNavigate={onNavigate} />
+        ))}
+      </List>
+
+      <Box
+        sx={{
+          mx: 2,
+          mb: 2,
+          p: 2,
+          borderRadius: 3,
+          background: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
+          Persistema v1.0
+        </Typography>
+      </Box>
+    </Box>
   );
 }
 
@@ -58,32 +178,10 @@ function Sidebar({ mobileOpen, onToggle }) {
     if (isMobile) onToggle();
   };
 
-  const content = (
-    <Box>
-      <Toolbar>
-        <Typography variant="h6" fontWeight={700} color="primary">
-          Sistema Escolar
-        </Typography>
-      </Toolbar>
-      <List sx={{ px: 1 }}>
-        {menuItems.map((item) => (
-          <SidebarItem key={item.key} item={item} onNavigate={handleNavigate} />
-        ))}
-      </List>
-    </Box>
-  );
-
   if (!isMobile) {
     return (
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box' },
-        }}
-      >
-        {content}
+      <Drawer variant="permanent" sx={DRAWER_SX}>
+        <SidebarContent onNavigate={handleNavigate} />
       </Drawer>
     );
   }
@@ -96,10 +194,15 @@ function Sidebar({ mobileOpen, onToggle }) {
       ModalProps={{ keepMounted: true }}
       sx={{
         display: { xs: 'block', md: 'none' },
-        '& .MuiDrawer-paper': { width: DRAWER_WIDTH },
+        '& .MuiDrawer-paper': {
+          width: DRAWER_WIDTH,
+          background: `linear-gradient(180deg, ${palette.navy[900]} 0%, ${palette.navy[950]} 100%)`,
+          color: '#ffffff',
+          borderRight: 'none',
+        },
       }}
     >
-      {content}
+      <SidebarContent onNavigate={handleNavigate} />
     </Drawer>
   );
 }

@@ -226,6 +226,7 @@ frontend/
 - React Router 7
 - Material UI 5 (MUI)
 - Vite 5 (build tool)
+- Google Fonts (Inter)
 
 ---
 
@@ -282,6 +283,16 @@ npm run dev             # http://localhost:5173
 - **Sidebar.jsx**: Botao hamburger duplicado (existia um no Sidebar e outro no Header para mobile). Removido do Sidebar; o Header controla a abertura.
 - **Sidebar.jsx**: Navegacao mobile fechava drawer usando CustomEvent. Refatorado para passar `onNavigate` via props.
 - **AlunosPage.jsx**: Formulario nao possuia campo `serie` visivel e o turma select era `required`. Corrigido: turma agora e opcional, campo `serie` aparece quando nao ha turma selecionada, e e auto-preenchido quando uma turma e selecionada.
+- **database.js**: `DB_PASS` vazia causava `using password: YES` no MySQL do XAMPP. Corrigido com `env.DB_PASS || null` para conectar sem senha quando vazio.
+
+### Visual (Redesign)
+- **Tema MUI**: Paleta premium (navy/indigo + gold), sombras refinadas, border-radius 16-20px, gradientes sutis
+- **Sidebar**: Fundo gradient navy escuro, indicador lateral gold na rota ativa, avatar do logo, versao do sistema
+- **Login**: Tela full-screen gradient escuro com glassmorphism, icone dourado, campos translucidos
+- **Dashboard**: Cards com barra de gradiente no topo, hover com elevacao, avatar com cor por modulo
+- **Formularios**: Bordas arredondadas 12px, sombras suaves no focus, espacamento generoso
+- **Listas**: Avatares com iniciais, chips coloridos por turma, animacao fadeInUp staggered
+- **Geral**: Fonte Inter, scrollbar customizada, animacoes de entrada, design responsivo mobile
 
 ---
 

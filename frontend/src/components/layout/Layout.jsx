@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box } from '@mui/material';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
@@ -14,11 +14,28 @@ function Layout() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
       <Sidebar mobileOpen={mobileOpen} onToggle={handleToggle} />
-      <Box component="main" sx={{ flexGrow: 1, width: { md: `calc(100% - ${DRAWER_WIDTH}px)` } }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+        }}
+      >
         <Header onToggleSidebar={handleToggle} />
-        <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: 'auto' }}>
+        <Box
+          sx={{
+            p: { xs: 2.5, md: 4 },
+            maxWidth: 1400,
+            width: '100%',
+            mx: 'auto',
+            flexGrow: 1,
+          }}
+        >
           <Outlet />
         </Box>
       </Box>
