@@ -5,6 +5,7 @@ import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import AlunosPage from '../pages/alunos/AlunosPage';
 import TurmasPage from '../pages/turmas/TurmasPage';
+import NotasPage from '../pages/notas/NotasPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
 
 function RotasProtegidas() {
@@ -14,6 +15,7 @@ function RotasProtegidas() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/alunos" element={<AlunosPage />} />
         <Route path="/turmas" element={<TurmasPage />} />
+        <Route path="/notas" element={<NotasPage />} />
         <Route path="/professores" element={<PlaceholderPage titulo="Professores" descricao="Gestao de professores estara disponivel em breve." />} />
         <Route path="/financeiro" element={<PlaceholderPage titulo="Financeiro" descricao="Mensalidades e contas estarao disponiveis em breve." />} />
         <Route path="/relatorios" element={<PlaceholderPage titulo="Relatorios" descricao="Indicadores da escola estarao disponiveis em breve." />} />

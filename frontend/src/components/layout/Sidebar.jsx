@@ -15,6 +15,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
+import GradeIcon from '@mui/icons-material/Grade';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import { palette } from '../../theme';
@@ -25,6 +26,7 @@ const menuItems = [
   { key: '/', label: 'Inicio', icon: <HomeIcon /> },
   { key: '/alunos', label: 'Alunos', icon: <PeopleIcon /> },
   { key: '/turmas', label: 'Turmas', icon: <ClassIcon /> },
+  { key: '/notas', label: 'Notas', icon: <GradeIcon /> },
   { key: '/professores', label: 'Professores', icon: <SchoolIcon /> },
   { key: '/financeiro', label: 'Financeiro', icon: <AttachMoneyIcon /> },
   { key: '/relatorios', label: 'Relatorios', icon: <AssessmentIcon /> },

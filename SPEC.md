@@ -59,6 +59,10 @@ Theme (theme.js)
 | `POST`   | `/api/turmas`           | Cadastra uma turma              |
 | `GET`    | `/api/turmas/:id/alunos`| Lista alunos de uma turma       |
 | `POST`   | `/api/turmas/:id/alunos`| Vincula um aluno a uma turma    |
+| `GET`    | `/api/notas`            | Lista todas as notas            |
+| `POST`   | `/api/notas`            | Cadastra uma nota               |
+| `DELETE` | `/api/notas/:id`        | Exclui uma nota                 |
+| `GET`    | `/api/boletim/:alunoId` | Boletim do aluno (medias, etc)  |
 
 ### Contratos de Request/Response
 
@@ -97,6 +101,54 @@ Theme (theme.js)
 // Request
 { "alunoId": "number (obrigatorio)" }
 // Response 200: { id, nome, turma_id, ... }
+// Response 404: { erro: "..." }
+```
+
+**POST /api/notas**
+```json
+// Request
+{
+  "aluno_id": "number (obrigatorio)",
+  "disciplina": "string (obrigatorio)",
+  "bimestre": "number 1-4 (obrigatorio)",
+  "nota": "number 0-10 (obrigatorio)"
+}
+// Response 201: { id, aluno_id, disciplina, bimestre, nota, ... }
+// Response 400: { erro: "..." }
+// Response 404: { erro: "..." }
+// Response 409: { erro: "..." }
+```
+
+**DELETE /api/notas/:id**
+```
+// Response 204: (sem corpo)
+// Response 404: { erro: "..." }
+```
+
+**GET /api/boletim/:alunoId**
+```json
+// Response 200:
+{
+  "aluno": { "id": 1, "nome": "...", "email": "..." },
+  "boletim": [
+    {
+      "disciplina": "Matematica",
+      "notas": [8.0, 7.5],
+      "media": 7.75,
+      "maiorNota": 8.0,
+      "menorNota": 7.5,
+      "situacao": "Aprovado"
+    }
+  ],
+  "resumo": {
+    "mediaGeral": 7.75,
+    "situacaoGeral": "Aprovado",
+    "maiorNotaGeral": 8.0,
+    "menorNotaGeral": 7.5,
+    "totalDisciplinas": 1,
+    "totalNotas": 2
+  }
+}
 // Response 404: { erro: "..." }
 ```
 
@@ -143,6 +195,35 @@ Turma (1) ----------< (N) Aluno
   onUpdate: CASCADE
 ```
 
+### Nota (tabela: `notas`)
+
+| Coluna       | Tipo      | Restricoes                      |
+| ------------ | --------- | ------------------------------- |
+| `id`         | INTEGER   | PK, auto-increment              |
+| `disciplina` | STRING    | NOT NULL                        |
+| `bimestre`   | INTEGER   | NOT NULL, 1-4                   |
+| `nota`       | DECIMAL4,2| NOT NULL, 0-10                  |
+| `aluno_id`   | INTEGER   | NOT NULL, FK->alunos            |
+| `createdAt`  | DATE      | Auto                            |
+| `updatedAt`  | DATE      | Auto                            |
+
+**Indice unico composto**: `(aluno_id, disciplina, bimestre)`
+
+### Relacionamento
+
+```
+Turma (1) ----------< (N) Aluno (1) ----------< (N) Nota
+  hasMany               belongsTo   hasMany        belongsTo
+  FK: alunos.turma_id    Aluno FK: notas.aluno_id -> alunos.id
+  onDelete: SET NULL     onDelete: CASCADE
+```
+
+### Logica de Negocio
+
+- Media geral: media de todas as notas do aluno
+- Situacao: Aprovado (>=7), Recuperacao (>=5), Reprovado (<5)
+- Constraints: Unique constraint impede notas duplicadas para mesma disciplina/bimestre
+
 ---
 
 ## Estrutura de Pastas
@@ -160,23 +241,28 @@ backend/
 │   │   └── validate.js         # Validacao Zod para req.body
 │   ├── services/
 │   │   ├── alunoService.js     # Logica de negocio de Aluno
-│   │   └── turmaService.js     # Logica de negocio de Turma
+│   │   ├── turmaService.js     # Logica de negocio de Turma
+│   │   └── notaService.js      # Logica de negocio de Nota + Boletim
 │   ├── controllers/
 │   │   ├── alunoController.js  # HTTP layer - Aluno
-│   │   └── turmaController.js  # HTTP layer - Turma
+│   │   ├── turmaController.js  # HTTP layer - Turma
+│   │   └── notaController.js   # HTTP layer - Nota + Boletim
 │   ├── models/
 │   │   ├── index.js            # Associacoes
 │   │   ├── Aluno.js            # Modelo Aluno
-│   │   └── Turma.js            # Modelo Turma
+│   │   ├── Turma.js            # Modelo Turma
+│   │   └── Nota.js             # Modelo Nota
 │   ├── validators/
 │   │   ├── alunoValidator.js   # Schemas Zod - Aluno
-│   │   └── turmaValidator.js   # Schemas Zod - Turma
+│   │   ├── turmaValidator.js   # Schemas Zod - Turma
+│   │   └── notaValidator.js    # Schemas Zod - Nota
 │   ├── utils/
 │   │   └── AppError.js         # Classe de erro operacional
 │   ├── routes/
 │   │   ├── index.js            # Monta /api/* + sub-rotas
 │   │   ├── alunos/routes.js
-│   │   └── turmas/routes.js
+│   │   ├── turmas/routes.js
+│   │   └── notas/routes.js
 │   └── server.js               # Entry point
 │
 frontend/
@@ -187,7 +273,8 @@ frontend/
 │   │   ├── DashboardPage.jsx
 │   │   ├── PlaceholderPage.jsx
 │   │   ├── alunos/AlunosPage.jsx
-│   │   └── turmas/TurmasPage.jsx
+│   │   ├── turmas/TurmasPage.jsx
+│   │   └── notas/NotasPage.jsx
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── Layout.jsx      # Shell com Sidebar + Header + Outlet
@@ -200,7 +287,8 @@ frontend/
 │   ├── hooks/
 │   │   ├── useAlunos.js
 │   │   ├── useTurmas.js
-│   │   └── useVincular.js
+│   │   ├── useVincular.js
+│   │   └── useNotas.js
 │   ├── services/api.js         # Wrapper fetch centralizado
 │   ├── context/AuthContext.jsx  # Gerenciamento de auth
 │   ├── theme.js                # Tema MUI customizado
