@@ -18,6 +18,21 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../context/AuthContext';
 import { palette } from '../theme';
 
+const inputSx = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 3,
+    color: '#ffffff',
+    '& input': { color: '#ffffff' },
+    '& fieldset': { borderColor: 'rgba(255,255,255,0.15)' },
+    '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
+    '&.Mui-focused fieldset': { borderColor: palette.gold[400] },
+  },
+  '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.6)' },
+  '& .MuiInputLabel-root.Mui-focused': { color: palette.gold[400] },
+  '& input::placeholder': { color: 'rgba(255,255,255,0.35)', opacity: 1 },
+};
+
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -65,9 +80,9 @@ function LoginPage() {
           sx={{
             p: { xs: 3, md: 5 },
             borderRadius: 6,
-            background: 'rgba(255,255,255,0.03)',
+            background: 'rgba(255,255,255,0.05)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.1)',
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
           }}
         >
@@ -100,7 +115,7 @@ function LoginPage() {
               >
                 Persistema
               </Typography>
-              <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
+              <Typography sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
                 Painel administrativo da escola
               </Typography>
             </Box>
@@ -114,25 +129,15 @@ function LoginPage() {
                   value={form.usuario}
                   onChange={handleChange}
                   required
+                  autoComplete="username"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <PersonOutlinedIcon sx={{ color: 'rgba(255,255,255,0.3)' }} />
+                        <PersonOutlinedIcon sx={{ color: 'rgba(255,255,255,0.4)' }} />
                       </InputAdornment>
                     ),
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(255,255,255,0.06)',
-                      borderRadius: 3,
-                      color: '#ffffff',
-                      '& fieldset': { borderColor: 'rgba(255,255,255,0.1)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                      '&.Mui-focused fieldset': { borderColor: palette.gold[400] },
-                    },
-                    '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.4)' },
-                    '& .MuiInputLabel-root.Mui-focused': { color: palette.gold[400] },
-                  }}
+                  sx={inputSx}
                 />
                 <TextField
                   fullWidth
@@ -142,10 +147,11 @@ function LoginPage() {
                   value={form.senha}
                   onChange={handleChange}
                   required
+                  autoComplete="current-password"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ color: 'rgba(255,255,255,0.3)' }} />
+                        <LockOutlinedIcon sx={{ color: 'rgba(255,255,255,0.4)' }} />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -153,25 +159,14 @@ function LoginPage() {
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
                           size="small"
-                          sx={{ color: 'rgba(255,255,255,0.3)' }}
+                          sx={{ color: 'rgba(255,255,255,0.5)' }}
                         >
                           {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      backgroundColor: 'rgba(255,255,255,0.06)',
-                      borderRadius: 3,
-                      color: '#ffffff',
-                      '& fieldset': { borderColor: 'rgba(255,255,255,0.1)' },
-                      '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                      '&.Mui-focused fieldset': { borderColor: palette.gold[400] },
-                    },
-                    '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.4)' },
-                    '& .MuiInputLabel-root.Mui-focused': { color: palette.gold[400] },
-                  }}
+                  sx={inputSx}
                 />
                 <Button
                   type="submit"
@@ -197,7 +192,7 @@ function LoginPage() {
               </Stack>
             </form>
 
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.25)', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
               Credenciais: qualquer usuario e senha
             </Typography>
           </Stack>

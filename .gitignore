@@ -17,3 +17,20 @@ coverage/
 *.swp
 *.swo
 *~
+
+# Arquivos de sistema
+.bash_profile
+.bashrc
+.gitconfig
+.gitmodules
+.mcp.json
+.profile
+.ripgreprc
+.zprofile
+.zshrc
+
+# Arquivos de missao (nao sao codigo)
+*.txt
+
+# Pastas de ferramentas
+.claude/
