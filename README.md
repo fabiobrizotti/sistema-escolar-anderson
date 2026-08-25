@@ -1,140 +1,158 @@
-# Persistema - Guia Pedagogico da Missao 002
+# Persistema - Sistema de Gestao Escolar
 
-Este README foi criado para orientar a turma do 3o ano (DS) na Missao 002 sem quebrar o que ja foi entregue na Missao 001.
+Sistema completo para gestao escolar com backend em Node.js + Express e frontend em React.
 
-Objetivo da Missao 002:
-- Cadastrar turmas
-- Relacionar alunos as turmas
-- Consultar alunos por turma
+## Funcionalidades
 
-Importante:
-- A modularizacao atual esta pronta para receber novos modulos.
-- Usem este guia como roteiro de trabalho do squad.
+- Cadastro de alunos
+- Gestao de turmas (vinculo turma-aluno)
+- Lancamento de notas e boletim do aluno
+- Controle de frequencia com estatisticas e ranking
 
-## 1) Como o sistema esta modularizado hoje
+## Pre-requisitos
 
-Backend:
-- Entrada do servidor: backend/src/server.js
-- Configuracao de banco: backend/src/config/database.js
-- Roteador central: backend/src/routes/index.js
-- Modulo alunos (Missao 001):
-  - Rotas: backend/src/routes/alunos/routes.js
-  - Controller: backend/src/controllers/alunoController.js
-  - Model: backend/src/models/Aluno.js
+- [Node.js](https://nodejs.org/) v18 ou superior
+- [XAMPP](https://www.apachefriends.org/) (ou qualquer servidor MySQL rodando na porta 3306)
+- Git
 
-Frontend:
-- Entrada React: frontend/src/main.jsx
-- Tela principal atual: frontend/src/App.jsx
-- Estilos globais: frontend/src/styles.css
+## Instalacao
 
-Regra de ouro de modularizacao:
-- Cada novo modulo deve ter sua propria pasta de rotas e seu proprio controller.
-- O arquivo backend/src/routes/index.js deve apenas "plugar" os modulos.
+### 1. Clonar o repositorio
 
-## 2) Arquivos que cada papel deve alterar na Missao 002
+```bash
+git clone <url-do-repositorio>
+cd software-house-anderson
+```
 
-### Front-End
-Arquivos principais:
-- frontend/src/App.jsx
+### 2. Instalar dependencias do backend
 
-O que alterar:
-- Criar interface para cadastro de turma (nome, serie, ano).
-- Exibir lista de turmas cadastradas.
-- Nao misturar regra de alunos com regra de turmas no mesmo bloco sem separacao.
+```bash
+cd backend
+npm install
+```
 
-Boa pratica didatica:
-- Separar em funcoes/trechos claros:
-  - estado de turma
-  - formulario de turma
-  - lista de turmas
+### 3. Instalar dependencias do frontend
 
-### Back-End
-Arquivos a criar/alterar:
-- Criar: backend/src/routes/turmas/routes.js
-- Criar: backend/src/controllers/turmaController.js
-- Alterar: backend/src/routes/index.js
+```bash
+cd ../frontend
+npm install
+```
 
-O que fazer:
-- Criar rotas de turmas em modulo separado.
-- Criar controller de turmas em arquivo separado.
-- Registrar o novo modulo no roteador central.
+### 4. Criar o banco de dados
 
-Exemplo de rotas esperadas (sugestao):
-- GET /turmas
-- POST /turmas
-- POST /turmas/:id/alunos
+Inicie o XAMPP (Apache + MySQL), depois abra o terminal e rode:
 
-### Banco de Dados
-Arquivos base:
-- backend/src/models/Aluno.js (ja existe)
+```bash
+mysql -u root < backend/sql/init.sql
+```
 
-O que projetar na Missao 002:
-- Nova entidade TURMA (id, nome, serie, ano)
-- Relacao 1:N (1 turma para muitos alunos)
+Isso cria o banco `sistema_escolar` com todas as tabelas (turmas, alunos, notas, frequencias).
 
-Primeiro em papel/diagrama:
-- Entidade TURMA
-- Chave estrangeira em ALUNOS (ex: turma_id)
+### 5. Configurar o arquivo .env
 
-Depois no codigo (fase de implementacao):
-- Criar model Turma
-- Definir associacoes no Sequelize
+O arquivo `backend/.env` ja vem configurado para XAMPP local:
 
-### QA
-Checklist minimo:
-- Cadastro de turma com campos obrigatorios
-- Turma salva corretamente
-- Vinculo aluno -> turma funcionando
-- Consulta de turma com seus alunos
-- Nao quebrou cadastro de alunos da Missao 001
+```
+PORT=3000
+DB_HOST=localhost
+DB_PORT=3306
+DB_DIALECT=mysql
+DB_NAME=sistema_escolar
+DB_USER=root
+DB_PASS=
+```
 
-## 3) Ordem recomendada de execucao (Sprint)
+Se voce usa senha no MySQL, preencha `DB_PASS`.
 
-1. Scrum Master distribui tarefas por papel.
-2. Banco faz modelagem no papel (1:N).
-3. Back cria modulo de turmas (rotas + controller).
-4. Front monta formulario/lista de turmas.
-5. QA valida fluxo completo.
-6. Squad prepara demo final.
+## Iniciar o Sistema
 
-## 4) Contrato entre Front e Back (combinado do squad)
+Abra **dois terminais**:
 
-Padrao de request para criar turma:
+### Terminal 1 - Backend
 
-{
-  "nome": "3o DS",
-  "serie": "3o Ano",
-  "ano": "2026"
-}
+```bash
+cd backend
+npm run dev
+```
 
-Padrao de resposta esperada:
+O servidor inicia em `http://localhost:3000`.
 
-{
-  "id": 1,
-  "nome": "3o DS",
-  "serie": "3o Ano",
-  "ano": "2026"
-}
+### Terminal 2 - Frontend
 
-## 5) Erros comuns que a turma deve evitar
+```bash
+cd frontend
+npm run dev
+```
 
-- Colocar todas as rotas no mesmo arquivo.
-- Misturar logica de alunos e turmas no mesmo controller.
-- Alterar diretamente o server para adicionar regra de negocio.
-- Quebrar o endpoint de alunos ja pronto.
-- Pular validacao de campos obrigatorios.
+O frontend inicia em `http://localhost:5173` e redireciona automaticamente para o backend.
 
-## 6) Definicao de pronto da Missao 002
+## Acessar o Sistema
 
-A missao esta pronta quando:
-- Existe modulo de turmas separado no backend.
-- Front consegue cadastrar e listar turmas.
-- Existe relacao turma-aluno validada pelo QA.
-- Missao 001 continua funcionando.
+1. Acesse `http://localhost:5173` no navegador
+2. Faca login com **qualquer usuario e senha** (autenticacao fake)
+3. Navegue pelo menu lateral
 
-## 7) Sugestao de apresentacao final (3 minutos)
+## Arquitetura
 
-1. Problema: alunos sem organizacao por turma.
-2. Solucao tecnica: novo modulo "turmas" com rotas e controller proprios.
-3. Evidencia: cadastro de turma + vinculacao de aluno + consulta.
-4. Aprendizado: separacao de responsabilidades e modularizacao.
+```
+backend/
+├── sql/init.sql              # Script de criacao do banco
+├── src/
+│   ├── config/               # Database e variaveis de ambiente
+│   ├── middleware/            # asyncHandler, errorHandler, validate (Zod)
+│   ├── models/               # Sequelize: Aluno, Turma, Nota, Frequencia
+│   ├── controllers/          # Camada HTTP de cada modulo
+│   ├── services/             # Logica de negocio de cada modulo
+│   ├── validators/           # Schemas Zod de cada modulo
+│   └── routes/               # Rotas de cada modulo
+
+frontend/
+├── src/
+│   ├── pages/                # Paginas: Login, Dashboard, Alunos, Turmas, Notas, Frequencia
+│   ├── components/           # Layout (Sidebar, Header) e componentes comuns
+│   ├── hooks/                # Hooks customizados: useAlunos, useTurmas, useNotas, useFrequencias
+│   ├── context/              # AuthContext (autenticacao fake)
+│   ├── routes/               # AppRoutes (definicao de rotas)
+│   ├── services/api.js       # Cliente HTTP (fetch wrapper)
+│   └── theme.js              # Tema MUI + paleta de cores
+```
+
+## Endpoints da API
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| GET | `/api/alunos` | Lista alunos |
+| POST | `/api/alunos` | Cadastra aluno |
+| GET | `/api/turmas` | Lista turmas |
+| POST | `/api/turmas` | Cadastra turma |
+| POST | `/api/turmas/:id/alunos` | Vincula aluno a turma |
+| GET | `/api/notas` | Lista notas |
+| POST | `/api/notas` | Cadastra nota |
+| DELETE | `/api/notas/:id` | Exclui nota |
+| GET | `/api/boletim/:alunoId` | Boletim do aluno |
+| GET | `/api/frequencias` | Lista frequencias |
+| POST | `/api/frequencias` | Registra frequencia |
+| DELETE | `/api/frequencias/:id` | Exclui registro |
+| GET | `/api/frequencias/stats/:alunoId` | Estatisticas do aluno |
+| GET | `/api/frequencias/ranking/:turmaId` | Ranking da turma |
+| GET | `/api/frequencias/risco` | Alunos abaixo de 75% |
+
+## Comandos Uteis
+
+```bash
+# Backend
+cd backend
+npm run dev        # Iniciar com nodemon (hot reload)
+npm start          # Iniciar em producao
+
+# Frontend
+cd frontend
+npm run dev        # Iniciar servidor de desenvolvimento
+npm run build      # Gerar build de producao
+```
+
+## Tecnologias
+
+**Backend:** Express 5, Sequelize 6, MySQL, Zod, Helmet, CORS
+
+**Frontend:** React 18, MUI 5, React Router 7, Vite 5
