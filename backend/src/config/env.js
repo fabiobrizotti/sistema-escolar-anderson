@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-const required = ['DB_NAME', 'DB_USER', 'DB_PASS'];
+const required = ['DB_NAME', 'DB_USER'];
 
 for (const key of required) {
   if (!process.env[key]) {
