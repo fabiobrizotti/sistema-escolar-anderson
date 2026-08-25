@@ -101,7 +101,7 @@ function LoginPage() {
                 Persistema
               </Typography>
               <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
-                Acesse o painel administrativo
+                Painel administrativo da escola
               </Typography>
             </Box>
 

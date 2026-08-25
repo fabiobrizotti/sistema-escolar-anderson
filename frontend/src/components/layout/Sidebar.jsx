@@ -10,12 +10,14 @@ import {
   useMediaQuery,
   useTheme,
   Avatar,
+  Divider,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
 import GradeIcon from '@mui/icons-material/Grade';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import { palette } from '../../theme';
@@ -27,6 +29,7 @@ const menuItems = [
   { key: '/alunos', label: 'Alunos', icon: <PeopleIcon /> },
   { key: '/turmas', label: 'Turmas', icon: <ClassIcon /> },
   { key: '/notas', label: 'Notas', icon: <GradeIcon /> },
+  { key: '/frequencia', label: 'Frequencia', icon: <EventAvailableIcon /> },
   { key: '/professores', label: 'Professores', icon: <SchoolIcon /> },
   { key: '/financeiro', label: 'Financeiro', icon: <AttachMoneyIcon /> },
   { key: '/relatorios', label: 'Relatorios', icon: <AssessmentIcon /> },
@@ -65,8 +68,9 @@ function SidebarItem({ item, onNavigate }) {
         py: 1.2,
         color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
         backgroundColor: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+        transition: 'all 0.2s ease',
         '&:hover': {
-          backgroundColor: 'rgba(255,255,255,0.08)',
+          backgroundColor: isActive ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.08)',
           color: '#ffffff',
         },
         '&.Mui-selected': {
@@ -149,8 +153,13 @@ function SidebarContent({ onNavigate }) {
       </Box>
 
       <List sx={{ px: 1.5, flexGrow: 1 }}>
-        {menuItems.map((item) => (
-          <SidebarItem key={item.key} item={item} onNavigate={onNavigate} />
+        {menuItems.map((item, index) => (
+          <Box key={item.key}>
+            {index === 5 && (
+              <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 1, mx: 1 }} />
+            )}
+            <SidebarItem item={item} onNavigate={onNavigate} />
+          </Box>
         ))}
       </List>
 

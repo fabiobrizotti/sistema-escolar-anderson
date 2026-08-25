@@ -1,7 +1,9 @@
 import { Box, Button, Toolbar, Typography, Avatar, Chip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../context/AuthContext';
+import { palette } from '../../theme';
 
 function Header({ onToggleSidebar }) {
   const { logout } = useAuth();
@@ -34,15 +36,17 @@ function Header({ onToggleSidebar }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Chip
+        icon={<PersonIcon sx={{ fontSize: 16 }} />}
         label="Administrador"
         size="small"
         sx={{
           mr: 2,
-          fontWeight: 500,
-          backgroundColor: 'primary.50',
-          color: 'primary.700',
-          border: '1px solid',
-          borderColor: 'primary.100',
+          fontWeight: 600,
+          fontSize: '0.8rem',
+          backgroundColor: `${palette.navy[50]}`,
+          color: palette.navy[700],
+          border: `1px solid ${palette.navy[100]}`,
+          '& .MuiChip-icon': { color: palette.navy[500] },
         }}
       />
       <Button
@@ -53,9 +57,10 @@ function Header({ onToggleSidebar }) {
           borderRadius: 3,
           color: 'text.secondary',
           fontWeight: 500,
+          fontSize: '0.875rem',
           '&:hover': {
             backgroundColor: 'rgba(244, 63, 94, 0.08)',
-            color: 'error.main',
+            color: '#e11d48',
           },
         }}
       >

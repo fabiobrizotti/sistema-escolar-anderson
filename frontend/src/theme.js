@@ -145,10 +145,6 @@ const theme = createTheme({
           border: '1px solid rgba(0,0,0,0.04)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          '&:hover': {
-            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04)',
-            transform: 'translateY(-2px)',
-          },
         },
       },
     },

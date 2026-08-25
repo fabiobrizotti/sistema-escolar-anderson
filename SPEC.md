@@ -63,6 +63,12 @@ Theme (theme.js)
 | `POST`   | `/api/notas`            | Cadastra uma nota               |
 | `DELETE` | `/api/notas/:id`        | Exclui uma nota                 |
 | `GET`    | `/api/boletim/:alunoId` | Boletim do aluno (medias, etc)  |
+| `GET`    | `/api/frequencias`      | Lista registros de frequencia   |
+| `POST`   | `/api/frequencias`      | Registra frequencia (presenca)  |
+| `DELETE` | `/api/frequencias/:id`  | Exclui registro de frequencia   |
+| `GET`    | `/api/frequencias/stats/:alunoId` | Stats do aluno          |
+| `GET`    | `/api/frequencias/ranking/:turmaId` | Ranking da turma      |
+| `GET`    | `/api/frequencias/risco`| Alunos com frequencia < 75%     |
 
 ### Contratos de Request/Response
 
@@ -218,6 +224,37 @@ Turma (1) ----------< (N) Aluno (1) ----------< (N) Nota
   onDelete: SET NULL     onDelete: CASCADE
 ```
 
+### Frequencia (tabela: `frequencias`)
+
+| Coluna       | Tipo      | Restricoes                      |
+| ------------ | --------- | ------------------------------- |
+| `id`         | INTEGER   | PK, auto-increment              |
+| `aluno_id`   | INTEGER   | NOT NULL, FK->alunos            |
+| `data_aula`  | DATEONLY  | NOT NULL                        |
+| `presente`   | BOOLEAN   | NOT NULL, default false         |
+| `createdAt`  | DATE      | Auto                            |
+| `updatedAt`  | DATE      | Auto                            |
+
+**Indice unico composto**: `(aluno_id, data_aula)`
+
+### Relacionamento
+
+```
+Turma (1) ----------< (N) Aluno (1) ----------< (N) Frequencia
+  hasMany               belongsTo   hasMany         belongsTo
+  FK: alunos.turma_id    Aluno FK: frequencias.aluno_id -> alunos.id
+  onDelete: SET NULL     onDelete: CASCADE
+```
+
+### Logica de Negocio
+
+- Media geral: media de todas as notas do aluno
+- Situacao Notas: Aprovado (>=7), Recuperacao (>=5), Reprovado (<5)
+- Frequencia: % = presencas / totalAulas * 100
+- Classificacao Frequencia: Boa (>=75%), Atencao (>=50%), Risco (<50%)
+- Alerta: Aluno abaixo de 75% gera alerta visual
+- Registro upsert: Se ja existe registro para aluno+data, atualiza presente
+
 ### Logica de Negocio
 
 - Media geral: media de todas as notas do aluno
@@ -242,27 +279,32 @@ backend/
 │   ├── services/
 │   │   ├── alunoService.js     # Logica de negocio de Aluno
 │   │   ├── turmaService.js     # Logica de negocio de Turma
-│   │   └── notaService.js      # Logica de negocio de Nota + Boletim
+│   │   ├── notaService.js      # Logica de negocio de Nota + Boletim
+│   │   └── frequenciaService.js # Logica de negocio de Frequencia + Stats
 │   ├── controllers/
 │   │   ├── alunoController.js  # HTTP layer - Aluno
 │   │   ├── turmaController.js  # HTTP layer - Turma
-│   │   └── notaController.js   # HTTP layer - Nota + Boletim
+│   │   ├── notaController.js   # HTTP layer - Nota + Boletim
+│   │   └── frequenciaController.js # HTTP layer - Frequencia + Stats
 │   ├── models/
 │   │   ├── index.js            # Associacoes
 │   │   ├── Aluno.js            # Modelo Aluno
 │   │   ├── Turma.js            # Modelo Turma
-│   │   └── Nota.js             # Modelo Nota
+│   │   ├── Nota.js             # Modelo Nota
+│   │   └── Frequencia.js       # Modelo Frequencia
 │   ├── validators/
 │   │   ├── alunoValidator.js   # Schemas Zod - Aluno
 │   │   ├── turmaValidator.js   # Schemas Zod - Turma
-│   │   └── notaValidator.js    # Schemas Zod - Nota
+│   │   ├── notaValidator.js    # Schemas Zod - Nota
+│   │   └── frequenciaValidator.js # Schemas Zod - Frequencia
 │   ├── utils/
 │   │   └── AppError.js         # Classe de erro operacional
 │   ├── routes/
 │   │   ├── index.js            # Monta /api/* + sub-rotas
 │   │   ├── alunos/routes.js
 │   │   ├── turmas/routes.js
-│   │   └── notas/routes.js
+│   │   ├── notas/routes.js
+│   │   └── frequencias/routes.js
 │   └── server.js               # Entry point
 │
 frontend/
@@ -274,7 +316,8 @@ frontend/
 │   │   ├── PlaceholderPage.jsx
 │   │   ├── alunos/AlunosPage.jsx
 │   │   ├── turmas/TurmasPage.jsx
-│   │   └── notas/NotasPage.jsx
+│   │   ├── notas/NotasPage.jsx
+│   │   └── frequencia/FrequenciaPage.jsx
 │   ├── components/
 │   │   ├── layout/
 │   │   │   ├── Layout.jsx      # Shell com Sidebar + Header + Outlet
@@ -288,7 +331,8 @@ frontend/
 │   │   ├── useAlunos.js
 │   │   ├── useTurmas.js
 │   │   ├── useVincular.js
-│   │   └── useNotas.js
+│   │   ├── useNotas.js
+│   │   └── useFrequencias.js
 │   ├── services/api.js         # Wrapper fetch centralizado
 │   ├── context/AuthContext.jsx  # Gerenciamento de auth
 │   ├── theme.js                # Tema MUI customizado
