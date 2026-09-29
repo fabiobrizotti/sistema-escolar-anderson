@@ -6,12 +6,12 @@ async function listarTurmas(req, res) {
 }
 
 async function cadastrarTurma(req, res) {
-  const novaTurma = await turmaService.cadastrar(req.body);
+  const novaTurma = await turmaService.cadastrar(req.body, req.usuario);
   res.status(201).json(novaTurma);
 }
 
 async function vincularAluno(req, res) {
-  const aluno = await turmaService.vincularAluno(Number(req.params.id), req.body.alunoId);
+  const aluno = await turmaService.vincularAluno(Number(req.params.id), req.body.alunoId, req.usuario);
   res.status(200).json(aluno);
 }
 

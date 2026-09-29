@@ -1,24 +1,44 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const login = useCallback((usuario, senha) => {
-    if (usuario && senha) {
-      setLoggedIn(true);
-      return true;
+  const [usuario, setUsuario] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('usuario')) || null;
+    } catch {
+      return null;
     }
-    return false;
+  });
+  const [erroLogin, setErroLogin] = useState(null);
+  const [carregandoLogin, setCarregandoLogin] = useState(false);
+
+  const login = useCallback(async (email, senha) => {
+    setCarregandoLogin(true);
+    setErroLogin(null);
+    try {
+      const data = await api.post('/auth/login', { email, senha });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('usuario', JSON.stringify(data.usuario));
+      setUsuario(data.usuario);
+      return true;
+    } catch (error) {
+      setErroLogin(error.message);
+      return false;
+    } finally {
+      setCarregandoLogin(false);
+    }
   }, []);
 
   const logout = useCallback(() => {
-    setLoggedIn(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    setUsuario(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, login, logout }}>
+    <AuthContext.Provider value={{ loggedIn: !!usuario, usuario, login, logout, erroLogin, carregandoLogin }}>
       {children}
     </AuthContext.Provider>
   );

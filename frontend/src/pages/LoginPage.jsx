@@ -9,6 +9,7 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  Alert,
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
@@ -34,9 +35,9 @@ const inputSx = {
 };
 
 function LoginPage() {
-  const { login } = useAuth();
+  const { login, erroLogin, carregandoLogin } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ usuario: '', senha: '' });
+  const [form, setForm] = useState({ email: '', senha: '' });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
@@ -44,9 +45,9 @@ function LoginPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (login(form.usuario, form.senha)) {
+    if (await login(form.email, form.senha)) {
       navigate('/');
     }
   };
@@ -122,11 +123,13 @@ function LoginPage() {
 
             <form onSubmit={handleSubmit} style={{ width: '100%' }}>
               <Stack spacing={2.5}>
+                {erroLogin && <Alert severity="error">{erroLogin}</Alert>}
                 <TextField
                   fullWidth
-                  label="Usuario"
-                  name="usuario"
-                  value={form.usuario}
+                  label="E-mail"
+                  name="email"
+                  type="email"
+                  value={form.email}
                   onChange={handleChange}
                   required
                   autoComplete="username"
@@ -172,6 +175,7 @@ function LoginPage() {
                   type="submit"
                   variant="contained"
                   size="large"
+                  disabled={carregandoLogin}
                   sx={{
                     mt: 1,
                     py: 1.5,
@@ -187,13 +191,13 @@ function LoginPage() {
                     },
                   }}
                 >
-                  Entrar
+                  {carregandoLogin ? 'Entrando...' : 'Entrar'}
                 </Button>
               </Stack>
             </form>
 
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
-              Credenciais: qualquer usuario e senha
+              Acesso inicial: admin@escola.com / admin123
             </Typography>
           </Stack>
         </Box>

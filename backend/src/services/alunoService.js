@@ -1,5 +1,6 @@
 import { Aluno, Turma } from '../models/index.js';
 import AppError from '../utils/AppError.js';
+import auditoriaService from './auditoriaService.js';
 
 class AlunoService {
   async listar() {
@@ -9,7 +10,7 @@ class AlunoService {
     });
   }
 
-  async cadastrar(dados) {
+  async cadastrar(dados, usuario) {
     const registro = { ...dados };
 
     if (registro.turma_id) {
@@ -25,7 +26,15 @@ class AlunoService {
     }
 
     try {
-      return await Aluno.create(registro);
+      const aluno = await Aluno.create(registro);
+      if (usuario) {
+        auditoriaService.registrar({
+          usuario_id: usuario.id, usuario_nome: usuario.nome, perfil: usuario.perfil,
+          operacao: 'ALUNO_CRIADO', recurso: 'alunos', recurso_id: String(aluno.id),
+          detalhes: { nome: aluno.nome },
+        });
+      }
+      return aluno;
     } catch (erro) {
       if (erro.name === 'SequelizeUniqueConstraintError') {
         throw new AppError('Ja existe um aluno cadastrado com este e-mail ou CPF.', 409);

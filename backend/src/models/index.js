@@ -2,6 +2,8 @@ import Aluno from './Aluno.js';
 import Turma from './Turma.js';
 import Nota from './Nota.js';
 import Frequencia from './Frequencia.js';
+import Usuario from './Usuario.js';
+import Auditoria from './Auditoria.js';
 
 Turma.hasMany(Aluno, {
   foreignKey: 'turma_id',
@@ -27,4 +29,7 @@ Aluno.hasMany(Frequencia, {
 });
 Frequencia.belongsTo(Aluno, { foreignKey: 'aluno_id', as: 'aluno' });
 
-export { Aluno, Turma, Nota, Frequencia };
+Aluno.hasOne(Usuario, { foreignKey: 'aluno_id', as: 'conta' });
+Usuario.belongsTo(Aluno, { foreignKey: 'aluno_id', as: 'aluno' });
+
+export { Aluno, Turma, Nota, Frequencia, Usuario, Auditoria };

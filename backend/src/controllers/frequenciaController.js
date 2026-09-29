@@ -6,17 +6,22 @@ async function listarFrequencias(req, res) {
 }
 
 async function cadastrarFrequencia(req, res) {
-  const nova = await frequenciaService.cadastrar(req.body);
+  const nova = await frequenciaService.cadastrar(req.body, req.usuario);
   res.status(201).json(nova);
 }
 
+async function salvarChamada(req, res) {
+  const resultado = await frequenciaService.salvarChamada(req.body, req.usuario);
+  res.status(201).json(resultado);
+}
+
 async function excluirFrequencia(req, res) {
-  await frequenciaService.excluir(Number(req.params.id));
+  await frequenciaService.excluir(Number(req.params.id), req.usuario);
   res.status(204).send();
 }
 
 async function statsAluno(req, res) {
-  const stats = await frequenciaService.statsAluno(Number(req.params.alunoId));
+  const stats = await frequenciaService.statsAluno(Number(req.params.alunoId), req.usuario);
   res.status(200).json(stats);
 }
 
@@ -30,4 +35,4 @@ async function alunosEmRisco(_req, res) {
   res.status(200).json(risco);
 }
 
-export default { listarFrequencias, cadastrarFrequencia, excluirFrequencia, statsAluno, rankingTurma, alunosEmRisco };
+export default { listarFrequencias, cadastrarFrequencia, salvarChamada, excluirFrequencia, statsAluno, rankingTurma, alunosEmRisco };

@@ -1,11 +1,25 @@
 import { Aluno, Nota } from '../models/index.js';
 import AppError from '../utils/AppError.js';
+import auditoriaService from './auditoriaService.js';
 
 const INCLUDE_ALUNO = {
   model: Aluno,
   as: 'aluno',
   attributes: ['id', 'nome', 'email', 'turma_id'],
 };
+
+function auditar(usuario, operacao, recurso, recurso_id, detalhes) {
+  if (!usuario) return;
+  auditoriaService.registrar({
+    usuario_id: usuario.id,
+    usuario_nome: usuario.nome,
+    perfil: usuario.perfil,
+    operacao,
+    recurso,
+    recurso_id: recurso_id ? String(recurso_id) : null,
+    detalhes,
+  });
+}
 
 class NotaService {
   async listar(filtros = {}) {
@@ -21,7 +35,7 @@ class NotaService {
     });
   }
 
-  async cadastrar(dados) {
+  async cadastrar(dados, usuario) {
     const aluno = await Aluno.findByPk(dados.aluno_id);
     if (!aluno) {
       throw new AppError('Aluno nao encontrado.', 404);
@@ -39,19 +53,25 @@ class NotaService {
       throw new AppError('Ja existe nota para este aluno nesta disciplina e bimestre.', 409);
     }
 
-    return Nota.create(dados);
+    const nota = await Nota.create(dados);
+    auditar(usuario, 'NOTA_CRIADA', 'notas', nota.id, { aluno_id: dados.aluno_id, disciplina: dados.disciplina });
+    return nota;
   }
 
-  async excluir(id) {
+  async excluir(id, usuario) {
     const nota = await Nota.findByPk(id);
     if (!nota) {
       throw new AppError('Nota nao encontrada.', 404);
     }
     await nota.destroy();
+    auditar(usuario, 'NOTA_EXCLUIDA', 'notas', id, { aluno_id: nota.aluno_id });
     return nota;
   }
 
-  async boletimAluno(alunoId) {
+  async boletimAluno(alunoId, usuario) {
+    if (usuario?.perfil === 'aluno' && Number(usuario?.aluno_id) !== Number(alunoId)) {
+      throw new AppError('Voce so pode consultar o seu proprio boletim.', 403);
+    }
     const aluno = await Aluno.findByPk(alunoId, {
       include: [
         { model: Nota, as: 'notas', attributes: ['id', 'disciplina', 'bimestre', 'nota'] },

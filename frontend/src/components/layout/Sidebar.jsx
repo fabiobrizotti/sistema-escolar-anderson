@@ -18,21 +18,28 @@ import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
 import GradeIcon from '@mui/icons-material/Grade';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import ShieldIcon from '@mui/icons-material/Shield';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import { useAuth } from '../../context/AuthContext';
 import { palette } from '../../theme';
 
 const DRAWER_WIDTH = 260;
 
-const menuItems = [
-  { key: '/', label: 'Inicio', icon: <HomeIcon /> },
-  { key: '/alunos', label: 'Alunos', icon: <PeopleIcon /> },
-  { key: '/turmas', label: 'Turmas', icon: <ClassIcon /> },
-  { key: '/notas', label: 'Notas', icon: <GradeIcon /> },
-  { key: '/frequencia', label: 'Frequencia', icon: <EventAvailableIcon /> },
-  { key: '/professores', label: 'Professores', icon: <SchoolIcon /> },
-  { key: '/financeiro', label: 'Financeiro', icon: <AttachMoneyIcon /> },
-  { key: '/relatorios', label: 'Relatorios', icon: <AssessmentIcon /> },
+const TODOS_ITENS = [
+  { key: '/', label: 'Inicio', icon: <HomeIcon />, perfis: ['admin', 'professor'] },
+  { key: '/portal', label: 'Meu Portal', icon: <HomeIcon />, perfis: ['aluno'] },
+  { key: '/alunos', label: 'Alunos', icon: <PeopleIcon />, perfis: ['admin', 'professor'] },
+  { key: '/turmas', label: 'Turmas', icon: <ClassIcon />, perfis: ['admin', 'professor'] },
+  { key: '/notas', label: 'Notas', icon: <GradeIcon />, perfis: ['admin', 'professor'] },
+  { key: '/frequencia', label: 'Frequencia', icon: <EventAvailableIcon />, perfis: ['admin', 'professor'] },
+  { key: '/chamada', label: 'Fazer Chamada', icon: <HowToRegIcon />, perfis: ['admin', 'professor'] },
+  { key: '/auditoria', label: 'Auditoria', icon: <ShieldIcon />, perfis: ['admin'] },
+  { key: '/usuarios', label: 'Usuarios', icon: <PeopleIcon />, perfis: ['admin'] },
+  { key: '/professores', label: 'Professores', icon: <SchoolIcon />, perfis: ['admin'] },
+  { key: '/financeiro', label: 'Financeiro', icon: <AttachMoneyIcon />, perfis: ['admin'] },
+  { key: '/relatorios', label: 'Relatorios', icon: <AssessmentIcon />, perfis: ['admin'] },
 ];
 
 const DRAWER_SX = {
@@ -111,6 +118,9 @@ function SidebarItem({ item, onNavigate }) {
 }
 
 function SidebarContent({ onNavigate }) {
+  const { usuario } = useAuth();
+  const itens = TODOS_ITENS.filter((i) => i.perfis.includes(usuario?.perfil || 'admin'));
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ px: 3, py: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -131,7 +141,7 @@ function SidebarContent({ onNavigate }) {
             Persistema
           </Typography>
           <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem' }}>
-            Sistema Escolar
+            {usuario?.nome || 'Sistema Escolar'}
           </Typography>
         </Box>
       </Box>
@@ -153,7 +163,7 @@ function SidebarContent({ onNavigate }) {
       </Box>
 
       <List sx={{ px: 1.5, flexGrow: 1 }}>
-        {menuItems.map((item, index) => (
+        {itens.map((item, index) => (
           <Box key={item.key}>
             {index === 5 && (
               <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 1, mx: 1 }} />
@@ -174,7 +184,7 @@ function SidebarContent({ onNavigate }) {
         }}
       >
         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem' }}>
-          Persistema v1.0
+          {usuario?.perfil === 'aluno' ? 'Portal do Aluno' : `Persistema v1.0 — ${usuario?.perfil || ''}`}
         </Typography>
       </Box>
     </Box>

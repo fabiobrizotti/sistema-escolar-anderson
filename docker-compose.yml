@@ -1,0 +1,78 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: sistema-escolar-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sistema_escolar
+      MYSQL_USER: escola
+      MYSQL_PASSWORD: escola123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sistema-escolar-backend
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DIALECT: mysql
+      DB_NAME: sistema_escolar
+      DB_USER: escola
+      DB_PASS: escola123
+      DB_SYNC_FORCE: "false"
+      DB_RETRY_DELAY_MS: 5000
+      NODE_ENV: development
+      JWT_SECRET: troque-por-um-segredo-forte-em-producao
+      JWT_EXPIRES_IN: 8h
+      SEED_ADMIN_EMAIL: admin@escola.com
+      SEED_ADMIN_SENHA: admin123
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    command: npm run dev
+
+  adminer:
+    image: adminer:latest
+    container_name: sistema-escolar-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sistema-escolar-frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  db_data:

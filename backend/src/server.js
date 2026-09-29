@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import env from './config/env.js';
 import sequelize from './config/database.js';
 import './models/index.js';
+import garantirAdmin from './seed.js';
 import routes from './routes/index.js';
 import errorHandler from './middleware/errorHandler.js';
 
@@ -46,6 +47,7 @@ async function connectDatabaseWithRetry() {
 
       await sequelize.sync({ force: env.DB_SYNC_FORCE });
       console.log('Banco de dados sincronizado com sucesso!');
+      await garantirAdmin();
       return;
     } catch (error) {
       console.error('Falha ao conectar no banco. Nova tentativa em alguns segundos.');

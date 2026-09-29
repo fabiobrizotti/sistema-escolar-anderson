@@ -1,4 +1,4 @@
-import { Box, Button, Toolbar, Typography, Avatar, Chip } from '@mui/material';
+import { Box, Button, Toolbar, Avatar, Chip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { palette } from '../../theme';
 
 function Header({ onToggleSidebar }) {
-  const { logout } = useAuth();
+  const { logout, usuario } = useAuth();
 
   return (
     <Toolbar
@@ -36,8 +36,8 @@ function Header({ onToggleSidebar }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Chip
-        icon={<PersonIcon sx={{ fontSize: 16 }} />}
-        label="Administrador"
+        avatar={<Avatar sx={{ width: 24, height: 24 }}><PersonIcon sx={{ fontSize: 14 }} /></Avatar>}
+        label={`${usuario?.nome || 'Usuario'} — ${usuario?.perfil || ''}`}
         size="small"
         sx={{
           mr: 2,

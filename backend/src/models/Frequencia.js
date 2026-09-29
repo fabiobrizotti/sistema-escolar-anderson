@@ -9,6 +9,11 @@ Frequencia.init(
     aluno_id: { type: DataTypes.INTEGER, allowNull: false },
     data_aula: { type: DataTypes.DATEONLY, allowNull: false },
     presente: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+    disciplina: { type: DataTypes.STRING, allowNull: true },
+    turma_id: { type: DataTypes.INTEGER, allowNull: true },
+    numero_aula: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+    quantidade_aulas: { type: DataTypes.INTEGER, allowNull: true },
+    plano_aula: { type: DataTypes.STRING, allowNull: true },
   },
   {
     sequelize,
@@ -18,7 +23,7 @@ Frequencia.init(
     indexes: [
       { fields: ['aluno_id'] },
       { fields: ['data_aula'] },
-      { fields: ['aluno_id', 'data_aula'], unique: true },
+      { fields: ['aluno_id', 'data_aula', 'disciplina', 'numero_aula'], unique: true },
     ],
   },
 );

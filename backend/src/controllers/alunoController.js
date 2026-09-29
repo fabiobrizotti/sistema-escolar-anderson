@@ -6,7 +6,7 @@ async function listarAlunos(req, res) {
 }
 
 async function cadastrarAluno(req, res) {
-  const novoAluno = await alunoService.cadastrar(req.body);
+  const novoAluno = await alunoService.cadastrar(req.body, req.usuario);
   res.status(201).json(novoAluno);
 }
 

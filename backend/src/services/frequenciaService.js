@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { Aluno, Frequencia, Turma } from '../models/index.js';
 import AppError from '../utils/AppError.js';
+import auditoriaService from './auditoriaService.js';
 
 const INCLUDE_ALUNO = {
   model: Aluno,
@@ -8,6 +9,19 @@ const INCLUDE_ALUNO = {
   attributes: ['id', 'nome', 'email', 'turma_id'],
   include: [{ model: Turma, as: 'turma', attributes: ['id', 'nome'] }],
 };
+
+function auditar(usuario, operacao, recurso, recurso_id, detalhes) {
+  if (!usuario) return;
+  auditoriaService.registrar({
+    usuario_id: usuario.id,
+    usuario_nome: usuario.nome,
+    perfil: usuario.perfil,
+    operacao,
+    recurso,
+    recurso_id: recurso_id ? String(recurso_id) : null,
+    detalhes,
+  });
+}
 
 class FrequenciaService {
   async listar(filtros = {}) {
@@ -28,35 +42,74 @@ class FrequenciaService {
     });
   }
 
-  async cadastrar(dados) {
+  async cadastrar(dados, usuario) {
     const aluno = await Aluno.findByPk(dados.aluno_id);
     if (!aluno) {
       throw new AppError('Aluno nao encontrado.', 404);
     }
 
     const existente = await Frequencia.findOne({
-      where: { aluno_id: dados.aluno_id, data_aula: dados.data_aula },
+      where: { aluno_id: dados.aluno_id, data_aula: dados.data_aula, disciplina: dados.disciplina || null, numero_aula: dados.numero_aula || 1 },
     });
 
+    let registro;
     if (existente) {
       existente.presente = dados.presente;
       await existente.save();
-      return existente;
+      registro = existente;
+    } else {
+      registro = await Frequencia.create({ numero_aula: 1, ...dados });
     }
-
-    return Frequencia.create(dados);
+    auditar(usuario, 'FREQUENCIA_CRIADA', 'frequencias', registro.id, { aluno_id: dados.aluno_id });
+    return registro;
   }
 
-  async excluir(id) {
+  // Missao 005: chamada por aula — checkbox de falta por aula lancada.
+  async salvarChamada({ turma_id, data_aula, disciplina, quantidade_aulas, plano_aula, faltas }, usuario) {
+    if (usuario?.perfil === 'professor' && usuario?.disciplina && disciplina !== usuario.disciplina) {
+      throw new AppError('Voce so pode lancar chamada da sua disciplina.', 403);
+    }
+    const alunos = await Aluno.findAll({ where: { turma_id }, order: [['nome', 'ASC']] });
+    if (alunos.length === 0) throw new AppError('Nenhum aluno nesta turma.', 404);
+
+    const mapaFaltas = new Map((faltas || []).map((f) => [Number(f.aluno_id), new Set((f.aulas || []).map(Number))]));
+    let registros = 0;
+
+    for (const aluno of alunos) {
+      const faltasAluno = mapaFaltas.get(aluno.id) || new Set();
+      for (let aula = 1; aula <= quantidade_aulas; aula++) {
+        const presente = !faltasAluno.has(aula);
+        await Frequencia.upsert({
+          aluno_id: aluno.id,
+          data_aula,
+          disciplina,
+          numero_aula: aula,
+          presente,
+          turma_id,
+          quantidade_aulas,
+          plano_aula: plano_aula || null,
+        });
+        registros += 1;
+      }
+    }
+    auditar(usuario, 'CHAMADA_SALVA', 'frequencias', null, { turma_id, disciplina, data_aula, quantidade_aulas });
+    return { alunos: alunos.length, registros, quantidade_aulas };
+  }
+
+  async excluir(id, usuario) {
     const frequencia = await Frequencia.findByPk(id);
     if (!frequencia) {
       throw new AppError('Registro de frequencia nao encontrado.', 404);
     }
     await frequencia.destroy();
+    auditar(usuario, 'FREQUENCIA_EXCLUIDA', 'frequencias', id, { aluno_id: frequencia.aluno_id });
     return frequencia;
   }
 
-  async statsAluno(alunoId) {
+  async statsAluno(alunoId, usuario) {
+    if (usuario?.perfil === 'aluno' && Number(usuario?.aluno_id) !== Number(alunoId)) {
+      throw new AppError('Voce so pode consultar a sua propria frequencia.', 403);
+    }
     const aluno = await Aluno.findByPk(alunoId, {
       include: [
         { model: Frequencia, as: 'frequencias', attributes: ['id', 'data_aula', 'presente'] },
@@ -79,6 +132,9 @@ class FrequenciaService {
     else if (percentual >= 50) classificacao = 'Atencao';
     else classificacao = 'Risco';
 
+    let situacao = 'Sem registros';
+    if (totalAulas > 0) situacao = percentual >= 75 ? 'Frequente' : 'Em risco';
+
     return {
       aluno: {
         id: aluno.id,
@@ -90,6 +146,7 @@ class FrequenciaService {
       faltas,
       percentual,
       classificacao,
+      situacao,
     };
   }
 
